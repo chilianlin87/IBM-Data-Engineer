@@ -1,0 +1,4 @@
+email Jeff
+write letter to Aunt Marie
+get groceries for Shabbat
+write final section of "command line basics"
