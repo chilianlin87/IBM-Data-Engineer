@@ -1755,4 +1755,35 @@ test and [ ] are the same command. We encourage using [ ] instead as it's more r
 wsl --list --verbose #how to check wsl version, in powershell type this command
 lsb_release -a #how to check ubuntu version, in bash or ubuntu type this command
 
+$0 - The filename of the current script.|
+$n - The Nth argument passed to script was invoked or function was called.|
+$# - The number of argument passed to script or function.|
+$@ - All arguments passed to script or function.|
+$* - All arguments passed to script or function.|
+$? - The exit status of the last command executed.|
+$$ - The process ID of the current shell. For shell scripts, this is the process ID under which they are executing.|
+$! - The process number of the last background command.|
+
+[Environment]::OSVersion #check windows version in powershell
+
+wsl --set-default-version 2 #set wsl 2 as your default version when installing new linux distributions
+
+docker pull centos
+docker run -d -t --name lennycentos centos
+docker ps
+docker exec -it lennycentos bash
+docker pull alpine
+docker run -t -d --name lennyalpine alpine
+docker ps
+docker exec -it lennyalpine sh
+docker pull ubuntu
+docker run -t -d --name lennyubuntu ubuntu
+docker ps
+docker exec -it lennyubuntu bash
+docker exec -it ooxwv-docker_hadoop bash
+
+
+
+
+
 
