@@ -1,0 +1,387 @@
+teams.txt is in exercise folder, exer to it
+
+Awk is a general-purpose scripting language designed for advanced text processing. It is mostly used as a reporting and analysis tool.
+
+Unlike most other programming languages that are procedural, awk is data-driven, which means that you define a set of actions to be performed against the input text. It takes the input data, transforms it, and sends the result to standard output.
+
+This article covers the essentials of the awk programming language. Knowing the basics of awk will significantly improve your ability to manipulate text files on the command line.
+
+How awk Works
+There are several different implementations of awk. We’ll use the GNU implementation of awk, which is called gawk. On most Linux systems, the awk interpreter is just a symlink to gawk.
+
+Records and fields
+Awk can process textual data files and streams. The input data is divided into records and fields. Awk operates on one record at a time until the end of the input is reached. Records are separated by a character called the record separator. The default record separator is the newline character, which means that each line in the text data is a record. A new record separator can be set using the RS variable.
+
+
+Records consist of fields which are separated by the field separator. By default, fields are separated by a whitespace, including one or more tab, space, and newline characters.
+
+The fields in each record are referenced by the dollar sign ($) followed by field number, beginning with 1. The first field is represented with $1, the second with $2, and so on. The last field can also be referenced with the special variable $NF. The entire record can be referenced with $0.
+
+
+Here is a visual representation showing how to reference records and fields:
+
+tmpfs      788M  1.8M  786M   1% /run/lock 
+/dev/sda1  234G  191G   31G  87% /
+|-------|  |--|  |--|   |--| |-| |--------| 
+   $1       $2    $3     $4   $5  $6 ($NF) --> fields
+|-----------------------------------------| 
+                    $0                     --> record
+Copy
+Awk program
+To process a text with awk, you write a program that tells the command what to do. The program consists of a series of rules and user defined functions. Each rule contains one pattern and action pair. Rules are separated by newline or semi-colons (;). Typically, an awk program looks like this:
+
+pattern { action }
+pattern { action }
+...
+Copy
+When awk process data, if the pattern matches the record, it performs the specified action on that record. When the rule has no pattern, all records (lines) are matched.
+
+An awk action is enclosed in braces ({}) and consists of statements. Each statement specifies the operation to be performed. An action can have more than one statement separated by newline or semi-colons (;). If the rule has no action, it defaults to printing the whole record.
+
+Awk supports different types of statements, including expressions, conditionals, input, output statements, and more. The most common awk statements are:
+
+
+exit - Stops the execution of the whole program and exits.
+next - Stops processing the current record and moves to the next record in the input data.
+print - Print records, fields, variables, and custom text.
+printf - Gives you more control over the output format, similar to C and bash printf .
+When writing awk programs, everything after the hash mark (#) and until the end of the line is considered to be a comment. Long lines can be broken into multiple lines using the continuation character, backslash (\).
+
+Executing awk programs
+An awk program can be run in several ways. If the program is short and simple, it can be passed directly to the awk interpreter on the command-line:
+
+awk 'program' input-file...
+Copy
+When running the program on the command-line, it should be enclosed in single quotes (''), so the shell doesn’t interpret the program.
+
+If the program is large and complex, it is best to put it in a file and use the -f option to pass the file to the awk command:
+
+
+awk -f program-file input-file...
+Copy
+
+In the examples below, we will use a file named “teams.txt” that looks like the one below:
+
+Bucks Milwaukee    60 22 0.732 
+Raptors Toronto    58 24 0.707 
+76ers Philadelphia 51 31 0.622
+Celtics Boston     49 33 0.598
+Pacers Indiana     48 34 0.585
+Copy
+Awk Patterns
+Patterns in awk control whether the associated action should be executed or not.
+
+Awk supports different types of patterns, including regular expression, relation expression, range, and special expression patterns.
+
+
+When the rule has no pattern, each input record is matched. Here is an example of a rule containing only an action:
+
+awk '{ print $3 }' teams.txt
+Copy
+The program will print the third field of each record:
+
+
+60
+58
+51
+49
+48
+Copy
+Regular expression patterns
+A regular expression or regex is a pattern that matches a set of strings. Awk regular expression patterns are enclosed in slashes (//):
+
+/regex pattern/ { action }
+Copy
+The most basic example is a literal character or string matching. For example, to display the first field of each record that contains “0.5” you would run the following command:
+
+awk '/0.5/ { print $1 }' teams.txt
+Copy
+Celtics
+Pacers
+Copy
+The pattern can be any type of extended regular expression. Here is an example that prints the first field if the record starts with two or more digits:
+
+awk '/^[0-9][0-9]/ { print $1 }' teams.txt
+Copy
+76ers
+Copy
+Relational expressions patterns
+The relational expressions patterns are generally used to match the content of a specific field or variable.
+
+By default, regular expressions patterns are matched against the records. To match a regex against a field, specify the field and use the “contain” comparison operator (~) against the pattern.
+
+
+For example, to print the first field of each record whose second field contains “ia” you would type:
+
+awk '$2 ~ /ia/ { print $1 }' teams.txt
+Copy
+76ers
+Pacers
+Copy
+To match fields that do not contain a given pattern use the !~ operator:
+
+awk '$2 !~ /ia/ { print $1 }' teams.txt
+Copy
+Bucks
+Raptors
+Celtics
+Copy
+You can compare strings or numbers for relationships such as, greater than, less than, equal, and so on. The following command prints the first field of all records whose third field is greater than 50:
+
+awk '$3 > 50 { print $1 }' teams.txt
+Copy
+Bucks
+Raptors
+76ers
+Copy
+Range patterns
+Range patterns consist of two patterns separated by a comma:
+
+pattern1, pattern2
+Copy
+All records starting with a record that matches the first pattern until a record that matches the second pattern are matched.
+
+Here is an example that will print the first field of all records starting from the record including “Raptors” until the record including “Celtics”:
+
+awk '/Raptors/,/Celtics/ { print $1 }' teams.txt
+Copy
+Raptors
+76ers
+Celtics
+Copy
+The patterns can also be relation expressions. The command below will print all records starting from the one whose fourth field is equal to 32 until the one whose fourth field is equal to 33:
+
+awk '$4 == 31, $4 == 33 { print $0 }' teams.txt
+Copy
+76ers Philadelphia 51 31 0.622
+Celtics Boston     49 33 0.598
+Copy
+Range patterns cannot be combined with other pattern expressions.
+
+Special expression patterns
+Awk includes the following special pattens:
+
+BEGIN - Used to perform actions before records are processed.
+END - Used to perform actions after records are processed.
+The BEGIN pattern is generally used to set variables and the END pattern to process data from the records such as calculation.
+
+The following example will print “Start Processing.”, then print the third field of each record and finally “End Processing.”:
+
+awk 'BEGIN { print "Start Processing." }; { print $3 }; END { print "End Processing." }' teams.txt
+Copy
+Start Processing
+60
+58
+51
+49
+48
+End Processing.
+Copy
+If a program has only a BEGIN pattern, actions are executed, and the input is not processed. If a program has only an END pattern, the input is processed before performing the rule actions.
+
+
+The Gnu version of awk also includes two more special patterns BEGINFILE and ENDFILE, which allows you to perform actions when processing files.
+
+Combining patterns
+Awk allows you to combine two or more patterns using the logical AND operator (&&) and logical OR operator (||).
+
+Here is an example that uses the && operator to print the first field of those record whose third field is greater than 50 and the fourth field is less than 30:
+
+awk '$3 > 50 && $4 < 30 { print $1 }' teams.txt
+Copy
+Bucks
+Raptors
+Copy
+Built-in Variables
+Awk has a number of built-in variables that contain useful information and allows you to control how the program is processed. Below are some of the most common built-in Variables:
+
+NF - The number of fields in the record.
+NR - The number of the current record.
+FILENAME - The name of the input file that is currently processed.
+FS - Field separator.
+RS - Record separator.
+OFS - Output field separator.
+ORS - Output record separator.
+Here is an example showing how to print the file name and the number of lines (records):
+
+awk 'END { print "File", FILENAME, "contains", NR, "lines." }' teams.txt
+Copy
+File teams.txt contains 5 lines.
+Copy
+Variables in AWK can be set at any line in the program. To define a variable for the entire program, put it in a BEGIN pattern.
+
+Changing the Field and Record Separator
+The default value of the field separator is any number of space or tab characters. It can be changed by setting in the FS variable.
+
+For example, to set the field separator to . you would use:
+
+awk 'BEGIN { FS = "." } { print $1 }' teams.txt
+Copy
+Bucks Milwaukee    60 22 0
+Raptors Toronto    58 24 0
+76ers Philadelphia 51 31 0
+Celtics Boston     49 33 0
+Pacers Indiana     48 34 0
+Copy
+The field separator can also be set to more than one characters:
+
+awk 'BEGIN { FS = ".." } { print $1 }' teams.txt
+Copy
+When running awk one-liners on the command-line, you can also use the -F option to change the field separator:
+
+
+awk -F "." '{ print $1 }' teams.txt
+Copy
+By default, the record separator is a newline character and can be changed using the RS variable.
+
+Here is an example showing how to change the record separator to .:
+
+awk 'BEGIN { RS = "." } { print $1 }' teams.txt
+Copy
+Bucks Milwaukee    60 22 0
+732 
+Raptors Toronto    58 24 0
+707 
+76ers Philadelphia 51 31 0
+622
+Celtics Boston     49 33 0
+598
+Pacers Indiana     48 34 0
+585
+Copy
+Awk Actions
+Awk actions are enclosed in braces ({}) and executed when the pattern matches. An action can have zero or more statements. Multiple statements are executed in the order they appear and must be separated by newline or semi-colons (;).
+
+There are several types of action statements that are supported in awk:
+
+Expressions, such as variable assignment, arithmetic operators, increment, and decrement operators.
+Control statements, used to control the flow of the program (if, for, while, switch, and more)
+Output statements, such as print and printf.
+Compound statements, to group other statements.
+Input statements, to control the processing of the input.
+Deletion statements, to remove array elements.
+The print statement is probably the most used awk statement. It prints a formatted output of text, records, fields, and variables.
+
+When printing multiple items, you need to separate them with commas. Here is an example:
+
+awk '{ print $1, $3, $5 }' teams.txt
+Copy
+The printed items are separated by single spaces:
+
+Bucks 60 0.732
+Raptors 58 0.707
+76ers 51 0.622
+Celtics 49 0.598
+Pacers 48 0.585
+Copy
+If you don’t use commas, there will be no space between the items:
+
+awk '{ print $1 $3 $5 }' teams.txt
+Copy
+The printed items are concatenated:
+
+Bucks600.732
+Raptors580.707
+76ers510.622
+Celtics490.598
+Pacers480.585
+Copy
+When print is used without an argument, it defaults to print $0. The current record is printed.
+
+To print a custom text, you must quote the text with double-quote characters:
+
+awk '{ print "The first field:", $1}' teams.txt
+Copy
+The first field: Bucks
+The first field: Raptors
+The first field: 76ers
+The first field: Celtics
+The first field: Pacers
+Copy
+You can also print special characters such as newline:
+
+awk 'BEGIN { print "First line\nSecond line\nThird line" }'
+Copy
+First line
+Second line
+Third line
+Copy
+The printf statement gives you more control over the output format. Here is an example that inserts line numbers:
+
+awk '{ printf "%3d. %s\n", NR, $0 }' teams.txt
+Copy
+printf doesn’t create a newline after each record, so we are using \n:
+
+  1. Bucks Milwaukee    60 22 0.732 
+  2. Raptors Toronto    58 24 0.707 
+  3. 76ers Philadelphia 51 31 0.622
+  4. Celtics Boston     49 33 0.598
+  5. Pacers Indiana     48 34 0.585
+Copy
+The following command calculates the sum of the values stored in the third field in each line:
+
+awk '{ sum += $3 } END { printf "%d\n", sum }' teams.txt
+Copy
+266
+Copy
+Here is another example showing how to use expressions and control statements to print the squares of numbers from 1 to 5:
+
+awk 'BEGIN { i = 1; while (i < 6) { print "Square of", i, "is", i*i; ++i } }'
+Copy
+Square of 1 is 1
+Square of 2 is 4
+Square of 3 is 9
+Square of 4 is 16
+Square of 5 is 25
+Copy
+One-line commands such as the one above are harder to understand and maintain. When writing longer programs, you should create a separate program file:
+
+prg.awk
+BEGIN { 
+  i = 1
+  while (i < 6) { 
+    print "Square of", i, "is", i*i; 
+    ++i 
+  } 
+}
+Copy
+Run the program by passing the file name to the awk interpreter:
+
+awk -f prg.awk
+Copy
+You can also run an awk program as an executable by using the shebang directive and setting the awk interpreter:
+
+prg.awk
+#!/usr/bin/awk -f
+BEGIN { 
+  i = 1
+  while (i < 6) { 
+    print "Square of", i, "is", i*i; 
+    ++i 
+  } 
+}
+Copy
+Save the file and make it executable :
+
+chmod +x prg.awk
+Copy
+You can now run the program by entering:
+
+./prg.awk
+Copy
+Using Shell Variables in Awk Programs
+If you are using the awk command in shell scripts, the chances are that you’ll need to pass a shell variable to the awk program. One option is to enclose the program with double instead of single quotes and substitute the variable in the program. However, this option will make your awk program more complex as you’ll need to escape the awk variables.
+
+The recommended way to use shell variables in awk programs is to assign the shell variable to an awk variable. Here is an example:
+
+num=51
+awk -v n="$num" 'BEGIN {print n}'
+CopyCopy
+51
+Copy
+Conclusion
+Awk is one of the most powerful tools for text manipulation.
+
+This article barely scratches the surface of the awk programming language. To learn more about awk, check out the official Gawk documentation .
+
+If you have any questions or feedback, feel free to leave a comment.

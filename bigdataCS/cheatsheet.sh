@@ -67,6 +67,369 @@ hdfs dfs -put data.txt /user/root/
 Check if the file has been copied into the HDFS by viewing its content.
 hdfs dfs -cat /user/root/data.txt
 
+docker network ls #docker container ip
+docker network inspect -f '{{json .Containers}}' 2569dd7bfb98 | jq '.[] | .Name + ":" + .IPv4Address' #docker container ip, 2569dd7bfb98 is the network id (driver is bridge)
+
+http://localhost:9870/ #view hdfs files in browser, 9870 is namenode port number
+
+docker start [container id] #start docker container, docker container start
+docker start [container name] #
+docker stop [container name]
+
+week 3 lab, getting started with spark using python
+Setup
+For this lab, we are going to be using Python and Spark (PySpark). These libraries should be installed in your lab environment or in SN Labs.
+
+# Installing required packages
+!pip install pyspark
+!pip install findspark
+import findspark
+findspark.init()
+# PySpark is the Spark API for Python. In this lab, we use PySpark to initialize the spark context. 
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import SparkSession
+Task 1: Creating the spark session and context
+# Creating a spark context class
+sc = SparkContext()
+​
+# Creating a spark session
+spark = SparkSession \
+    .builder \
+    .appName("Python Spark DataFrames basic example") \
+    .config("spark.some.config.option", "some-value") \
+    .getOrCreate()
+Task 2: Initialize Spark session
+To work with dataframes we just need to verify that the spark session instance has been created.
+
+spark
+Task 1: Create an RDD.
+For demonstration purposes, we create an RDD here by calling sc.parallelize()
+We create an RDD which has integers from 1 to 30.
+
+data = range(1,30)
+# print first element of iterator
+print(data[0])
+len(data)
+xrangeRDD = sc.parallelize(data, 4)
+​
+# this will let us know that we created an RDD
+xrangeRDD
+subRDD = xrangeRDD.map(lambda x: x-1)
+filteredRDD = subRDD.filter(lambda x : x<10)
+Task 3: Actions
+A transformation returns a result to the driver. We now apply the collect() action to get the output from the transformation.
+
+​
+print(filteredRDD.collect())
+filteredRDD.count()
+import time 
+
+test = sc.parallelize(range(1,50000),4)
+test.cache()
+
+t1 = time.time()
+# first count will trigger evaluation of count *and* cache
+count1 = test.count()
+dt1 = time.time() - t1
+print("dt1: ", dt1)
+
+
+t2 = time.time()
+# second count operates on cached data only
+count2 = test.count()
+dt2 = time.time() - t2
+print("dt2: ", dt2)
+
+#test.count()
+
+# Download the data first into a local `people.json` file
+!curl https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-BD0225EN-SkillsNetwork/labs/data/people.json >> people.json
+# Read the dataset into a spark dataframe using the `read.json()` function
+df = spark.read.json("people.json").cache()
+# Print the dataframe as well as the data schema
+df.show()
+df.printSchema()
+# Register the DataFrame as a SQL temporary view
+df.createTempView("people")
+df.select("name").show()
+df.select(df["name"]).show()
+spark.sql("SELECT name FROM people").show()
+# Perform basic filtering
+
+df.filter(df["age"] > 21).show()
+spark.sql("SELECT age, name FROM people WHERE age > 21").show()
+# Perfom basic aggregation of data
+
+df.groupBy("age").count().show()
+spark.sql("SELECT age, COUNT(age) as count FROM people GROUP BY age").show()
+
+Setup
+For this lab, we are going to be using Python and Spark (PySpark). These libraries should be installed in your lab environment or in SN Labs.
+
+Pandas is a popular data science package for Python. In this lab, we use Pandas to load a CSV file from disc to a pandas dataframe in memory. PySpark is the Spark API for Python. In this lab, we use PySpark to initialize the spark context.
+
+# Installing required packages
+!pip install pyspark
+!pip install findspark
+!pip install pandas
+import findspark
+findspark.init()
+import pandas as pd
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import SparkSession
+Exercise 1 - Spark session
+In this exercise, you will create and initialize the Spark session needed to load the dataframes and operate on it
+
+Task 1: Creating the spark session and context
+# Creating a spark context class
+sc = SparkContext()
+​
+# Creating a spark session
+spark = SparkSession \
+    .builder \
+    .appName("Python Spark DataFrames basic example") \
+    .config("spark.some.config.option", "some-value") \
+    .getOrCreate()
+Task 2: Initialize Spark session
+To work with dataframes we just need to verify that the spark session instance has been created.
+
+spark
+Task 1: Loading data into a Pandas DataFrame
+# Read the file using `read_csv` function in pandas
+mtcars = pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-BD0225EN-SkillsNetwork/labs/data/mtcars.csv')
+# Preview a few records
+mtcars.head()
+Task 2: Loading data into a Spark DataFrame
+# We use the `createDataFrame` function to load the data into a spark dataframe
+sdf = spark.createDataFrame(mtcars) 
+# Let us look at the schema of the loaded spark dataframe
+sdf.printSchema()
+sdf.select('mpg').show(5)
+sdf.filter(sdf['mpg'] < 18).show(5)
+sdf.withColumn('wtTon', sdf['wt'] * 0.45).show(5)
+sdf.groupby(['cyl'])\
+.agg({"wt": "AVG"})\
+.show(5)
+car_counts = sdf.groupby(['cyl'])\
+.agg({"wt": "count"})\
+.sort("count(wt)", ascending=False)\
+.show(5)
+Setup
+For this lab, we are going to be using Python and Spark (PySpark). These libraries should be installed in your lab environment or in SN Labs. Pandas is a popular data science package for Python. In this lab, we use Pandas to load a CSV file from disc to a pandas dataframe in memory. PySpark is the Spark API for Python. In this lab, we use PySpark to initialize the spark context.
+
+# Installing required packages
+!pip install pyspark
+!pip install findspark
+!pip install pyarrow==1.0.0
+!pip install pandas
+!pip install numpy==1.19.5
+import findspark
+findspark.init()
+import pandas as pd
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import SparkSession
+Exercise 1 - Spark session
+Create and initialize the Spark session needed to load the data frames and operate on it
+
+Task 1: Creating the spark session and context
+# Creating a spark context class
+sc = SparkContext()
+​
+# Creating a spark session
+spark = SparkSession \
+    .builder \
+    .appName("Python Spark DataFrames basic example") \
+    .config("spark.some.config.option", "some-value") \
+    .getOrCreate()
+Task 2: Initialize Spark session
+To work with dataframes we just need to verify that the spark session instance has been created.
+
+spark
+spark
+Task 1: Load data into a Pandas DataFrame.
+Pandas has a convenient function to load CSV data from a URL directly into a pandas dataframe.
+
+# Read the file using `read_csv` function in pandas
+mtcars = pd.read_csv('https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-BD0225EN-SkillsNetwork/labs/data/mtcars.csv')
+# Preview a few records
+mtcars.head()
+mtcars.rename( columns={'Unnamed: 0':'name'}, inplace=True )
+Task 2: Loading data into a Spark DataFrame
+We use the createDataFrame function to load the data into a spark dataframe
+
+ = spark.createDataFrame(mtcars) 
+sdf = spark.createDataFrame(mtcars) 
+Let us look at the schema of the loaded spark dataframe
+
+sdf.printSchema()
+sdf.createTempView("cars")
+# Showing the whole table
+spark.sql("SELECT * FROM cars").show()
+# Showing a specific column
+spark.sql("SELECT mpg FROM cars").show(5)
+# Basic filtering query to determine cars that have a high mileage and low cylinder count
+spark.sql("SELECT * FROM cars where mpg>20 AND cyl < 6").show(5)
+# Aggregating data and grouping by cylinders
+spark.sql("SELECT count(*), cyl from cars GROUP BY cyl").show()
+Task 1: Importing libraries and registering a UDF
+# import the Pandas UDF function 
+from pyspark.sql.functions import pandas_udf, PandasUDFType
+@pandas_udf("float")
+def convert_wt(s: pd.Series) -> pd.Series:
+    # The formula for converting from imperial to metric tons
+    return s * 0.45
+​
+spark.udf.register("convert_weight", convert_wt)
+spark.sql("SELECT *, wt AS weight_imperial, convert_weight(wt) as weight_metric FROM cars").show()
+
+
+#week 5
+pip3 install pyspark
+python3 -m pip install pyspark
+git clone https://github.com/big-data-europe/docker-spark.git
+cd docker-spark
+docker-compose up
+submit.py
+spark-submit.py
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructField, StructType, IntegerType, StringType
+
+sc = SparkContext.getOrCreate(SparkConf().setMaster('spark://localhost:7077'))
+sc.setLogLevel("INFO")
+
+spark = SparkSession.builder.getOrCreate()
+
+
+spark = SparkSession.builder.getOrCreate()
+df = spark.createDataFrame(
+    [
+        (1, "foo"),
+        (2, "bar"),
+    ],
+    StructType(
+        [
+            StructField("id", IntegerType(), False),
+            StructField("txt", StringType(), False),
+        ]
+    ),
+)
+print(df.dtypes)
+df.show()
+python3 submit.py
+
+#install kind-kubernetes in docker
+git clone https://github.com/ibm-developer-skills-network/fgskh-new_horizons.git
+cd fgskh-new_horizons
+cd kind
+./install_kind.sh
+./create_kind_cluster.sh
+alias k='kubectl'
+k apply -f ../spark/pod_spark.yaml -n default
+k apply -f rbac.yaml -n default
+k get po -n default
+k get po -n default
+k delete po spark -n default
+k apply -f ../spark/pod_spark.yaml -n default
+k get po -n default
+k exec  -n default -it spark -c spark  -- /bin/bash
+./bin/spark-submit \
+--master k8s://http://127.0.0.1:8001 \
+--deploy-mode cluster \
+--name spark-pi \
+--class org.apache.spark.examples.SparkPi \
+--conf spark.executor.instances=3 \
+--conf spark.kubernetes.container.image=romeokienzler/spark-py:3.1.2 \
+--conf spark.kubernetes.executor.limit.cores=1 \
+local:///opt/spark/examples/jars/spark-examples_2.12-3.1.2.jar \
+10
+kubectl get po -n default
+kubectl logs -n default spark-pi-6f62d17a800beb3e-driver |grep "Job 0 finished:"
+Job 0 finished: reduce at SparkPi.scala:38, took 8.446024 s
+kubectl logs -n default spark-pi-6f62d17a800beb3e-driver |grep "Pi is roughly "
+
+#week 6 debug
+wget https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-BD0225EN-SkillsNetwork/labs/data/cars.csv
+for i in `docker ps | awk '{print $1}' | grep -v CONTAINER`; do docker kill $i; done
+docker rm spark-master spark-worker-1 spark-worker-2
+docker run \
+    --name spark-master \
+    -h spark-master \
+    -e ENABLE_INIT_DAEMON=false \
+    -p 4040:4040 \
+    -p 8080:8080 \
+    -v `pwd`:/home/root \
+    -d bde2020/spark-master:3.1.1-hadoop3.2
+docker run \
+    --name spark-worker-1 \
+    --link spark-master:spark-master \
+    -e ENABLE_INIT_DAEMON=false \
+    -p 8081:8081 \
+    -v `pwd`:/home/root \
+    -d bde2020/spark-worker:3.1.1-hadoop3.2
+docker exec \
+    -it `docker ps | grep spark-master | awk '{print $1}'` \
+    /spark/bin/pyspark \
+    --master spark://spark-master:7077
+df = spark.read.csv("/home/root/cars.csv", header=True, inferSchema=True) \
+    .repartition(32) \
+    .cache()
+df.show()
+from pyspark.sql.functions import udf
+import time
+
+@udf("string")
+def engine(cylinders):
+    time.sleep(0.2)  # Intentionally delay task
+    eng = {6: "V6", 8: "V8"}
+    return eng[cylinders]
+df = df.withColumn("engine", engine("cylinders"))
+dfg = df.groupby("cylinders")
+dfa = dfg.agg({"mpg": "avg", "engine": "first"})
+dfa.show()
+@udf("string")
+def engine(cylinders):
+    time.sleep(0.2)  # Intentionally delay task
+    eng = {4: "inline-four", 6: "V6", 8: "V8"}
+    return eng.get(cylinders, "other")
+df = df.withColumn("engine", engine("cylinders"))
+dfg = df.groupby("cylinders")
+dfa = dfg.agg({"mpg": "avg", "engine": "first"})
+dfa.show()
+  docker run \
+    --name spark-worker-2 \
+    --link spark-master:spark-master \
+    -e ENABLE_INIT_DAEMON=false \
+    -p 8082:8082 \
+    -d bde2020/spark-worker:3.1.1-hadoop3.2
+theia@theiadocker-user:/home/project$ docker run \
+>     --name spark-worker-2 \
+>     --link spark-master:spark-master \
+>     -e ENABLE_INIT_DAEMON=false \
+>     -p 8082:8082 \
+>     -d bde2020/spark-worker:3.1.1-hadoop3.2
+1935a71827668ae3476e6a16f0bebcd4c2a342a21271dc22be487aa1b1731708
+theia@theiadocker-user:/home/project$
+dfa.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Basic HDFS DFS Commands
 Below are basic hdfs dfs or hadoop fs Commands.
 
