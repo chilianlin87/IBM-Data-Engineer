@@ -1,6 +1,7 @@
 paste from clipboard to nano: shift+right mouse
 find . -type  f | grep -v "[0-9].txt" | wc -l #count the number of txt files in director and subdirectories, find txt files, count txt files, directory and subdirectory
 $? #return the status of last command
+wsl --shutdown
 wsl -terminate Ubuntu
 wsl -t docker-desktop
 wsl -t docker-desktop-data
@@ -18,7 +19,7 @@ $! - The process number of the last background command.|
 
 #echo  sequence using braces with input paramater
 eval echo {0..$1}
-
+seq 126 | awk '{printf "%c", $0}' | grep -o '[[:digit:]]' #print character class, characters in character class
 #cron
 using
 nano /etc/crontab
