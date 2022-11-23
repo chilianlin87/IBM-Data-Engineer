@@ -1,0 +1,20 @@
+wget https://archive.apache.org/dist/kafka/2.8.0/kafka_2.12-2.8.0.tgz #download kafka
+tar -xzf kafka_2.12-2.8.0.tgz #extract kafka
+cd kafka_2.12-2.8.0 #enter kafka folder
+bin/zookeeper-server-start.sh config/zookeeper.properties #zookeeper is required for kafka, start the zookeeper server
+bin/kafka-server-start.sh config/server.properties #start kafka message broker
+bin/kafka-topics.sh --create --topic news --bootstrap-server localhost:9092 #new terminal create a kafka topic
+bin/kafka-console-producer.sh --topic news --bootstrap-server localhost:9092 #start a producer to send messages to kafka
+bin/kafka-console-consumer.sh --topic news --from-beginning --bootstrap-server localhost:9092 #start consumer to listen to messages in kafka topic
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic bankbranch  --partitions 2 #create topic with 2 partitions
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --list #list all topics
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic bankbranch #describe topic bankgranch
+bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic bankbranch #create producer for topic bankbranch
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic bankbranch --from-beginning #start consumer to subscribe to the topic bankbranch
+bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic bankbranch --property parse.key=true --property key.separator=: #start a new producer with message key enabled
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic bankbranch --from-beginning --property print.key=true --property key.separator=: #start a new consumer with arguments to print the keys
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic bankbranch --group atm-app #create a new consumer within a consumer group called atm-app
+bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group atm-app #see the offsets show the details of the consumer group atm-app
+bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092  --topic bankbranch --group atm-app --reset-offsets --to-earliest --execute #reset the offset for the consumer
+bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092  --topic bankbranch --group atm-app --reset-offsets --shift-by -2 --execute #reset offset shift by 2
+
