@@ -1,0 +1,60 @@
+UNIX / Linux Decompress tgz / tar.gz and extract files
+Author: Vivek Gite Last updated: December 21, 2018 5 comments
+See all Bash/Shell scripting related FAQIam a new Linux system user. I have downloaded a file from the internet in .tgz format. How do I decompress .tgz file under UNIX or Linux operating system using a shell prompt? How can I decompress .tar.gz file on Unix?
+
+Introduction – A tarball is nothing but a group of files that are kept together using the tar command. Typically have .tar extension. Compress .tar file have .tgz or .tar.gz extension. You get the tar file is compressed when compressed using gzip and other Linux or Unix applications. So tgz archive file also known as tar ball. If an archive is compressed with an external tool, the compression program adds its own suffix as usual, resulting in filename endings like “.tar.Z”, “.tar.gz”, and “.tar.bz2” or tgz. This page shows how to extract .tar.gz/.tgz files using Linux or Unix command line.
+ADVERTISEMENT
+
+Linux decompress tgz file
+To open such file type the following tar command at Linux shell prompt (GNU tar syntax):
+$ tar -zxvf filename.tgz
+
+Linux Decompress tgz file command
+The above, command will extract the .tgz file into the current directory. To view files use the cd command and ls command:
+ls -l
+cd dir1
+ls
+
+Unix decompress .tar.gz file
+Let us see how to extract .tar.gz files using Unix or Linux command line, run:
+$ tar -zxvf filename.tar.gz
+
+How to decompressing .tar.bz2 file
+Run the following command to extract .tar.bz2 file on Unix or Linux:
+$ tar -jxvf filename.tar.bz2
+
+How to uncompress tar.gz/tgz/tar.bz2 file into a different directory
+
+The syntax is:
+tar -zxvf filename.tgz -C /path/to/dir1/
+tar -zxvf filename.tar.gz /dir2/
+tar -jxvf filename.tar.bz2 /path/to/dir3
+
+How to to extract single file named foo.mp4 from the backup.tar.gz
+Execute:
+tar -xvzf backup.tar.gz foo.mp4
+
+Extract dir2 from backup.tar.gz, run:
+tar -xvzf backup.tar.gz dir2
+
+How to view a listing all files in tarball archive
+Again use the tar command as follows to see a listing of all files in backup.tar.gz:
+tar -ztvf backup.tar.gz
+
+UNIX decompress tgz / tar.gz file
+Type the following command:
+$ gzip -dc filename.tgz | tar xf -
+$ gzip -dc filename.tar.gz | tar xf -
+
+If file extension ends with .Z, enter:
+$ zcat filename.tar.Z | tar xf -
+
+Summary of tar command options
+z – Decompress/extract tar.gz or .tgz file
+j – Decompress/extract tar.bz2 or .tbz2 file
+x – Extract files
+v – Verbose output on screen
+t – List files stored inside given tarball archive
+f – Extract given filename.tar.gz and so on
+Conclusion
+This page showed how to extract (decompress) tar.gz/tgz files using Linux and Unix command line options.

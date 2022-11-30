@@ -1,0 +1,161 @@
+9 Practical Examples of the cut Command in Linux
+BY
+RUMAISA NIAZI
+PUBLISHED FEB 6, 2022
+Become a Linux power user by learning how to manipulate text using the cut command.
+
+cut command in linux
+Readers like you help support MUO. When you make a purchase using links on our site, we may earn an affiliate commission. Read More.
+Linux-based operating systems offer many command-line text processing utilities you can use in your day-to-day routine. The cut command is one such text manipulation utility that uses delimiters, bytes, fields, and columns to fetch a required string from a flat-file database or a line.
+
+Since a flat-file database does not have a structural relationship and the records are separated with the help of delimiters, cut is an ideal tool to extract characters or bytes of information. This article discusses the cut command in detail and demonstrates some practical examples with different filter options to get you started with the tool.
+
+
+Close
+
+Overview of the cut Command
+cut uses the following basic syntax:
+
+cut <option> <file>
+You can also pipe it with other commands as follows:
+
+echo “string_of_characters” | cut <options>
+Please note that the absence of any option generates an error. Here are some flags you can use with cut to invoke its various functions:
+
+Option	Description
+-b	Cuts by byte position
+-c	Cuts by character position
+-d	Extracts string using the delimiter specified with (-f) field option
+-f	Extracts by a specified field
+-s	Extracts for only delimiters
+--complement	Print the output except for the field which you have specified
+--output-delimiter	Replace the existing delimiter with the one you have specified
+Here are some examples of the cut command that will help you get a better understanding of the tool and its functions.
+
+1. Extract Specific Characters From a String
+Use the -b option to fetch strings of characters by their byte count, as follows:
+
+echo "Hello World" | cut -b 1,2,3,5,8,9
+Output:
+
+Heloor
+You can also specify a file path instead of a string:
+
+cut -b 1,2,3,4,5 filename.txt
+Or you can extract characters as per their position in the text. Use the -c option followed by the sequence/order of characters you need to fetch as follows:
+
+echo "Hello World" | cut -c 1,2,3,5,6,8,10,11
+Output:
+
+Helo old
+Similarly, to fetch fields or columns from a flat-file database, use the cut command with the -f flag option:
+
+cut -f 3 database.txt
+Cut by Field
+2. Cut Range of Bytes or Characters
+You can also use the -b flag with the cut command to extract and print multiple ranges of bytes as follows:
+
+cut -b 1-7,16-23 database.txt
+Cut by Range of Bytes
+You can define the range to fetch characters using the -c flag as follows:
+
+cut -c 1-7,16-23 database.txt
+Cut by Range of Characters
+3. Extract Text From Start or End Positions
+Use the -cn- option to extract text from nth character onwards to the end of the line, where n is the index of a character in the string.
+
+
+For example, to extract the string starting from the sixth character to the end of the line:
+
+cut -c6- database.txt
+Cut Start Till End
+Or use the following command to fetch from start till the last m characters from the file:
+
+cut -c-8 database.txt
+4. Cut Multiple Fields From a File
+You can also print multiple fields from a file using the -f flag.
+
+cut -f 1,2 database.txt
+Output:
+
+NAME AGE
+Jhon 20
+Lisa 24
+Jack 18
+Bruce 23
+Nancy 19
+5. Extract Text Using Delimiters
+You can use the -d flag to specify the delimiter with the -f option. The delimiter specifies the character used to separate fields in a text file.
+
+For instance, to extract the first column of the /etc/passwd file, use a colon (:) as the delimiter:
+
+cut -d ‘:’ -f 1 /etc/passwd
+Cut With Delimiter And Field
+Similarly, the delimiter value in the given stream of text is a single space:
+
+echo "The 1% of the 1%" | cut -d ' ' -f 2,3
+Output:
+
+1% of
+6. Change Output Delimiter for Display
+The --output-delimiter flag adds flexibility to the cut command output. For instance, you can use the flag to display the output in a separate line using the $’\n’ (newline) value, as follows:
+
+grep alice /etc/passwd | cut -d ':' -f 1,5,7 --output-delimiter=$'\⁠n'
+Output:
+
+alice
+Alice
+/bin/sh
+Moreover, you can also replace a delimiter of an input file with the delimiter of your choice in the output by using the --output-delimiter flag:
+
+grep root /etc/passwd | cut -d ':' -f 1,6,7 --output-delimiter=@
+Output:
+
+root@/root@/bin/bash
+nm-openvpn@/var/lib/openvpn/chroot@/usr/sbin/nologin
+7. Cut Fields Only When a Line Contains the Delimiter
+Use the -s flag to extract fields only when the lines contain a delimiter. For instance, the following command will not fetch the field -f 1 unless it has a space delimiter:
+
+
+echo "HelloWorld" | cut -d " " -f 1 -s
+On the contrary, the below-mentioned command will generate an output as the string contains the specified delimiter:
+
+echo "Hello World" | cut -d " " -f 1 -s
+Output:
+
+Hello
+Similarly, you can also use any other character as the delimiter:
+
+echo "Hello:World" | cut -d ":" -f 2 -s
+Output:
+
+World
+8. Complement the Command Output
+The cut utility also allows you to print all the fields except the specified field. Use the --complement option as follows to fetch all the details of the root user account except the fifth column:
+
+grep "root" /etc/passwd | cut -d ':' --complement -s -f 5
+Output:
+
+root:x:0:0:/root:/bin/bash
+Similarly, in the example below, the -f 1 parameter must display Hello text however, due to the --complement option, it only prints the rest of it.
+
+echo "Hello to the whole World" | cut -d " " -f 1 --complement
+Output:
+
+to the whole World
+9. Pipe cut With the sed Utility
+The best part is you can combine the cut command with the standard output of other Linux/Unix commands.
+
+sed is one such text editing tool you can use to delete, insert, and replace your text. You can easily pipe its output to the cut command.
+
+In the example below, the grep command output is piped to the sed utility which replaces colon (:) with a hyphen (-) and then, cut displays fields 1, 6, and 7 as follows:
+
+grep alice /etc/passwd | sed 's/:/-/g' | cut -d ' ' -f 1,5,7
+Output:
+
+alice-x-1005-1008-Alice-/home/new/alice-/bin/sh
+Working With Text on Linux Using cut
+The cut command is a flexible and efficient command-line utility that you can use in various use cases of text manipulation. It utilizes operations to filter out text from files or standard input data. The utility also has an advantage enabling users to limit the text they want to display and add delimiters of their own choice.
+
+
+However, this command has some limitations as well. You cannot use regular expressions to specify delimiter or use concurrent multiple cut command options. This article has covered basic to advance level practical examples of this utility to help beginners with a clear understanding of text-manipulation commands on Linux.
