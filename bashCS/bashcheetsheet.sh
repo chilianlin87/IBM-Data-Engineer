@@ -1,3 +1,9 @@
+coinmon # bitcoin crypto price top 10
+coinmon -t 15 #bitcoin crypto price top 15
+coinmon -c EUR #bitcoin crypto price top 10 in EUR
+coinmon -f btc #find bitcoin price
+coinmon -h #bitcoin price help
+sudo unrar e -r 1125.rar #unrar, rar, extract rar
 paste from clipboard to nano: shift+right mouse
 find . -type  f | grep -v "[0-9].txt" | wc -l #count the number of txt files in director and subdirectories, find txt files, count txt files, directory and subdirectory
 $? #return the status of last command
